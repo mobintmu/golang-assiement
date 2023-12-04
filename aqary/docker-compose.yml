@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  db:
+    image: "postgres"
+    environment:
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=user-db
+    volumes:
+      - user-db:/var/lib/postgresql/data
+    restart: always
+    ports: 
+      - 5432:5432
+
+  liquibase:
+    image: liquibase/liquibase
+    command: tail -f /liquibase/changelog.xml
+    volumes:
+      - ./sql/changelog.xml:/liquibase/changelog.xml
+      - ./sql/migrations:/liquibase/migrations
+
+  admin:
+    image: adminer
+    restart: always
+    depends_on: 
+      - db
+    ports:
+      - 8081:8080
+
+volumes:
+    user-db:
+       driver: local
+
+
